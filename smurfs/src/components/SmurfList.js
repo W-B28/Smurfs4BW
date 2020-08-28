@@ -1,39 +1,43 @@
-import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-
-import { getSmurfs, addSmurf } from '../actions/action';
-
-import SmurfForm from './SmurfForm';
-
-const SmurfList = props => {
-  const initialSmurfs = props.getSmurfs;
-
-useEffect(() => {
-  initialSmurfs()
-}, [initialSmurfs])
+import React from 'react';
+import  { connect } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
+import { deleteSmurf, putSmurf} from  '../actions';
 
 
-return (
-      <div>
-             <div className = "smurfList">
-                 {props.smurf.map(smurf =>(
-                     <div className ="eachSmurf" key={smurf.id} >
-                         <p>Name: {smurf.name} </p>
-                         <p>Age: {smurf.age} </p>
-                         <p>Height: {smurf.height} </p>
-                     </div>
-                 ))}
-             </div>
-             <SmurfForm addSmurf = {props.addSmurf} />
-         </div>
-     );
- };
 
- const mapStateToProps = state => {
-   return({
-     smurf: state.smurf,
-     error: state.error
-   })
- };
+const SmurfList = () => {
 
- export default connect (mapStateToProps, {getSmurfs, addSmurf})(SmurfList);
+    const smurfs = useSelector(state => state.smurfs);
+    const dispatch = useDispatch(); 
+    
+   const deleteSmurfs = id => {
+        dispatch(deleteSmurf(id));
+    };
+    const putSmurfs = id => {
+        dispatch(putSmurf(id));
+    };
+    return <>
+    <div className="CardBox">
+      {smurfs.map(smurf => {
+        return (
+          <div key={smurf.id} className="card">
+            <p>{`Member name: ${smurf.name}`}</p>
+            <p>{`Age: ${smurf.age} years old`}</p>
+            <p>{`Height: ${smurf.height} tall`}</p>
+            <button onClick={() => {deleteSmurfs(smurf.id)}} >Delete</button>
+            <button onClick={() => {putSmurfs(smurf.id)}} >Edit</button>
+          </div>
+        );
+      })}
+    </div>
+        
+    </>
+}
+
+const mapStateToProps = state => {
+    return {
+        smurfs:state.smurfs, error : state.error
+    };
+};
+
+export default connect(mapStateToProps, {deleteSmurf}) (SmurfList)

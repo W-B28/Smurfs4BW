@@ -1,64 +1,81 @@
 import React, { useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import { getData, postSmurf  } from '../actions/index.js'
 
-const SmurfForm = (props) => {
-    const [newSmurf, setNewSmurf] = useState({
-        name: '',
-        age: '',
-        height: ''
-    });
+const SmurfForm = props => {
+    const [name , setName] = useState("");
+    const [age, setAge] = useState();
+    const [height, setHeight] =useState();
 
+const dispatch = useDispatch();
+
+    const handleNameChanges = e =>{
+        setName(e.target.value)
+        
+    }
+    const handleAgeChanges = e =>{
+        setAge(e.target.value)
+        
+    }
+    const handleHeightChanges = e =>{
+        setHeight(e.target.value)
+        
+    }
+        const handleGetData = e => {
+        e.preventDefault();
+        props.getData();
+    }
     const handleSubmit = e => {
         e.preventDefault();
-        props.addSmurf(newSmurf);
-        setNewSmurf({
-            name: "",
-            age: "",
-            height:""
-        });
+        dispatch(
+          postSmurf({
+            name: name,
+            age: age,
+            height: `${height}cm`,
+            id: Date.now()
+          })
+        );
+        setName(``);
+        setAge(``);
+        setHeight(``);
+      };
+
+    return <>
+    <h2>Add smurf form</h2>
+    <form  onSubmit={handleSubmit}>
+        <input
+            type="text"
+            value={name}
+            onChange={handleNameChanges}
+            placeholder="Add name"
+        />
+
+        <input
+            type="number"
+            value={age}
+            onChange={handleAgeChanges}
+            placeholder="Add age"
+        />
+        <input
+            type="number"
+            value={height}
+            onChange={handleHeightChanges}
+            placeholder="Add height"
+        />
+        <button>Submit new member</button>
+        {props.isFetchingData ? (
+                 <div>Data is loading ...</div>
+             ) : (
+                <button onClick={handleGetData} >Show all the members</button>)}
+    </form>
+    
+         </>
+    }
+
+const mapStateToProps = state => {
+    return {
+        isFetchingData:state.isFetchingData
     };
-
-    const handleChanges = e => {
-        setNewSmurf({
-            ...newSmurf,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="name"
-                        onChange={handleChanges}
-                        value={newSmurf.name}
-                    />
-                </div>
-                <div>
-                    <input
-                        type="text"
-                        name="age"
-                        placeholder="age"
-                        onChange={handleChanges}
-                        value={newSmurf.age}
-                    />
-                </div>
-                <div>
-                    <input
-                        type="text"
-                        name="height"
-                        placeholder="height"
-                        onChange={handleChanges}
-                        value={newSmurf.height}
-                    />
-                </div>
-                <button className = "submitButton" type="submit">Create Smurf</button>
-
-            </form>
-        </div>
-    );
 };
 
-export default SmurfForm;
+export default connect (mapStateToProps, {getData }) (SmurfForm);
